@@ -1,0 +1,183 @@
+
+
+clear; close all; clc
+% go to the path where the files is, and load the csv
+path= '/home/hhuan006/batch2021fall/T12/sub100/';
+path_ctd='/home/hhuan006/CTD2021fall/';
+ctd_list=dir(fullfile(path_ctd,'*cast-1.*'));
+ctd_name=ctd_list(1).name;
+data_ctd=csvread(strcat(path_ctd,ctd_name),1,0);
+filelist=dir(fullfile(path,'*cast-1_sec=1.csv'));
+n=1;
+Comb={};
+m=1;
+julian_day=data_ctd(:,17);
+% get the row number and column number of the CTD data
+[hour_ctd,minute_ctd,second_ctd]=julian_conversion(julian_day);
+L={};
+% L = num2cell(zeros(0,34));
+% L.Properties.VariableNames = {'image_number', 'k', 'Area', 'MajorAxisLength',  'MinorAxisLength', 'EquivDiameter', 'Eccentricity', 'Orientation', 'FilledArea', 'Solidity', 'Perimeter', 'MeanIntensity','date','time', 'Conductivity','Conductivity2','temperature', 'temperature2','pressure', 'oxy', 'oxy2','fluorescence[ug/l]',  'fluorescence[mg/m^3]', 'BeamAttenuation','BeamTransmission', 'PSU', 'PSU2','density','density2','depth','days','hours','min','sec'}
+file_name=filelist(1).name;    
+data_particle=readtable(strcat(path,file_name));
+save_name=strrep(file_name,'date_time','combine');
+% get the time in image data
+time_point=table2cell(data_particle(:,14));
+[w,p]=size(time_point);
+% change the format of x into string as B
+time_p=string(time_point);
+for j=1:length(time_point)
+
+
+
+% give the data of Julian days into a variable A
+
+% calculate the julian days into hour, minute and second, and save into
+% seperate variables
+
+% split the string in the image data into hour, minute and second
+unt=time_p(j,1);
+P=strsplit(unt,':');
+hour=str2num(P{1});
+hour=hour+3;
+if hour>=24
+    hour=hour-24;
+end
+minute=str2num(P{2});
+second=str2num(P{3});
+% if the time points in 2 variabls match, the write down the data
+if ~isempty(find(hour_ctd==hour&minute_ctd==minute&second_ctd==second))==1
+        i=find(hour_ctd==hour&minute_ctd==minute&second_ctd==second); i=i(1);
+ 
+        Comb{n,1}=table2cell(data_particle(j,1));
+        Comb{n,2}=table2cell(data_particle(j,2));
+        Comb{n,3}=table2cell(data_particle(j,3));
+        Comb{n,4}=table2cell(data_particle(j,4));
+        Comb{n,5}=table2cell(data_particle(j,5));
+        Comb{n,6}=table2cell(data_particle(j,6));
+        Comb{n,7}=table2cell(data_particle(j,7));
+        Comb{n,8}=table2cell(data_particle(j,8));
+        Comb{n,9}=table2cell(data_particle(j,9));
+        Comb{n,10}=table2cell(data_particle(j,10));
+        Comb{n,11}=table2cell(data_particle(j,11));
+        Comb{n,12}=table2cell(data_particle(j,12));
+        Comb{n,13}=table2cell(data_particle(j,13));
+        Comb{n,14}=table2cell(data_particle(j,14));
+        Comb{n,15}=num2cell(data_ctd(i,1));
+        Comb{n,16}=num2cell(data_ctd(i,2));
+        Comb{n,17}=num2cell(data_ctd(i,3));
+        Comb{n,18}=num2cell(data_ctd(i,4));
+        Comb{n,19}=num2cell(data_ctd(i,5));
+        Comb{n,20}=num2cell(data_ctd(i,6));
+        Comb{n,21}=num2cell(data_ctd(i,7));
+        Comb{n,22}=num2cell(data_ctd(i,8));
+        Comb{n,23}=num2cell(data_ctd(i,9));
+        Comb{n,24}=num2cell(data_ctd(i,10));
+        Comb{n,25}=num2cell(data_ctd(i,11));
+        Comb{n,26}=num2cell(data_ctd(i,12));
+        Comb{n,27}=num2cell(data_ctd(i,13));
+        Comb{n,28}=num2cell(data_ctd(i,14));
+        Comb{n,29}=num2cell(data_ctd(i,15));
+        Comb{n,30}=num2cell(data_ctd(i,16));
+        Comb{n,31}=num2cell(data_ctd(i,17));
+        Comb{n,32}=num2cell(data_ctd(i,18));
+        Comb{n,33}=num2cell(data_ctd(i,19));
+        Comb{n,34}=num2cell(data_ctd(i,20));
+    
+  
+        %[image_number k Area MajorAxisLength  MinorAxisLength EquivDiameter Eccentricity Orientation FilledArea Solidity Perimeter MeanIntensity data time Conductivity   Conductivity2  temperature temperature2   pressure    oxy oxy2   fluorescence[ug/l]  fluorescence[mg/m^3]  BeamAttenuation  BeamTransmission PSU PSU2   density density2   depth   days    hours   min  sec ]
+    n=n+1;
+% else if we get the julian day not aligned with CTD time point, we will
+% need to approximate to closest depth
+else
+julian=hour/24+minute/24/60+second/24/60/60;
+[val,idx]=min(abs(100*(julian_day-floor(julian_day))-100*julian));
+idx=idx(1);
+if floor(julian_day(end))~=floor(julian_day(1)) && julian>0.8
+    julian = julian-1;
+end
+if julian<julian_day(1)-floor(julian_day(end)) || julian>julian_day(end)-floor(julian_day(end))
+   ;
+else
+    
+        Comb{n,1}=table2cell(data_particle(j,1));
+        Comb{n,2}=table2cell(data_particle(j,2));
+        Comb{n,3}=table2cell(data_particle(j,3));
+        Comb{n,4}=table2cell(data_particle(j,4));
+        Comb{n,5}=table2cell(data_particle(j,5));
+        Comb{n,6}=table2cell(data_particle(j,6));
+        Comb{n,7}=table2cell(data_particle(j,7));
+        Comb{n,8}=table2cell(data_particle(j,8));
+        Comb{n,9}=table2cell(data_particle(j,9));
+        Comb{n,10}=table2cell(data_particle(j,10));
+        Comb{n,11}=table2cell(data_particle(j,11));
+        Comb{n,12}=table2cell(data_particle(j,12));
+        Comb{n,13}=table2cell(data_particle(j,13));
+        Comb{n,14}=table2cell(data_particle(j,14));
+        Comb{n,15}=num2cell(data_ctd(idx,1));
+        Comb{n,16}=num2cell(data_ctd(idx,2));
+        Comb{n,17}=num2cell(data_ctd(idx,3));
+        Comb{n,18}=num2cell(data_ctd(idx,4));
+        Comb{n,19}=num2cell(data_ctd(idx,5));
+        Comb{n,20}=num2cell(data_ctd(idx,6));
+        Comb{n,21}=num2cell(data_ctd(idx,7));
+        Comb{n,22}=num2cell(data_ctd(idx,8));
+        Comb{n,23}=num2cell(data_ctd(idx,9));
+        Comb{n,24}=num2cell(data_ctd(idx,10));
+        Comb{n,25}=num2cell(data_ctd(idx,11));
+        Comb{n,26}=num2cell(data_ctd(idx,12));
+        Comb{n,27}=num2cell(data_ctd(idx,13));
+        Comb{n,28}=num2cell(data_ctd(idx,14));
+        Comb{n,29}=num2cell(data_ctd(idx,15));
+        Comb{n,30}=num2cell(data_ctd(idx,16));
+        Comb{n,31}=num2cell(data_ctd(idx,17));
+        Comb{n,32}=num2cell(data_ctd(idx,18));
+        Comb{n,33}=num2cell(data_ctd(idx,19));
+        Comb{n,34}=num2cell(data_ctd(idx,20));
+        
+n=n+1;
+end
+end
+
+% if it goes to next loop, already write data at the same time point and the next one does not match, then end the loop and for the next time point, start from this row   
+end
+% pp=vertcat(Comb{:,1};Comb{:,2});
+L=cell2table(Comb);
+save_path='/home/hhuan006/comb2021fall/T12/sub100/';
+if ~exist(save_path)
+  mkdir(save_path)
+end
+writetable(splitvars(L),[save_path,save_name]);
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+
+        
+        
+
+        
+
+        
+        
+
+        
+
+        
+
+        
+        
+        
+
+        
+
+        
