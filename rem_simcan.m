@@ -30,8 +30,6 @@ edge_final=bwmorph(edge_final, 'bridge');
 fill_edge=imfill(edge_final,'holes');
 % %figure
 % imshow(fill_edge)
-% dilate then erode by the same kernel
-J= imclose(fill_edge, se);
 % remove the edges in Canny detection
 fill_edge(edge_final~=0)=0;
 fill_edge=imfill(fill_edge,'holes');
