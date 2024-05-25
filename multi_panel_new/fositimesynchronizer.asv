@@ -1,0 +1,113 @@
+function [a]=fositimesynchronizer(path_dir,fosi_time,calcam_time,ctd_time,calctd_time,datei,im_format,h)
+
+% save the path of images to a variable
+dir_sep = regexp(path_dir,'\','split');
+cast_name = dir_sep{end};
+save_dir = strcat(path_dir,'\',cast_name,' subtracted\');
+if isfolder(save_dir)
+    rmdir(save_dir,'s');
+end
+mkdir(save_dir);
+file_path =  [path_dir '\'];
+% make all the images into a list
+FileList   = dir(fullfile(file_path, '*-*'));
+% sort the images in folder as an ascending order(the order is not right for the initial order)
+[~, Index] = natsort({FileList.name});
+% return the images in new order into the list
+FileList   = FileList(Index);
+% gain the entire number of the image files
+
+gap_cal=calctd_time-calcam_time;
+
+time_dif=ctd_time-fosi_time+gap_cal;
+
+    if length(num2str(datei(1)))==1
+        years_date=['0' num2str(datei(1))];
+    else
+        years_date=num2str(datei(1));
+    end
+    if length(num2str(datei(2)))==1
+        mon_date=['0' num2str(datei(2))];
+    else
+        mon_date=num2str(datei(2));
+    end
+    if length(num2str(datei(3)))==1
+        sec_date=['0' num2str(datei(3))];
+    else
+        sec_date=num2str(datei(3));
+    end
+date_p=[num2str(years_date) '-' num2str(mon_date) '-' num2str(sec_date)];
+
+for j=1:length(FileList)
+    im_name=FileList(j).name;
+ 
+%------load the artifact-------------------------
+    a=regexp(im_name,im_format,'split');
+    a = regexp(a{1},' ','split');
+    % get the variable of image number
+    im_label = a{1};
+    % read the number after image
+    im_number=sscanf(im_label,'image%f');
+    % get the image name of the 2nd image in subtraction
+    tim_im=a{3};
+    tim_sep= regexp(tim_im,'-','split');
+
+    % calculate the difference between camera and CTD in hour, minute and
+    % seconds
+    hh_im=str2num(tim_sep{1});
+    mm_im=str2num(tim_sep{2});
+    ss_im=str2num(tim_sep{3});
+
+    % filter the image with even number   image_name_ms = FileList_match(1).name;
+    hh_cor=hh_im+time_dif(1);
+    mm_cor=mm_im+time_dif(2);
+    ss_cor=ss_im+time_dif(3);
+    
+    if ss_cor>=60
+    mm_cor=mm_cor+1;
+    ss_cor=ss_cor-60;
+    end
+    if mm_cor>=60
+    hh_cor=hh_cor+1;
+    mm_cor=mm_cor-60;
+    end
+    if hh_cor>=24
+    hh_cor=hh_cor-24;
+    end
+    
+    if ss_cor<0
+    mm_cor=mm_cor-1;
+    ss_cor=ss_cor+60;
+    end
+    if mm_cor<0
+    hh_cor=hh_cor-1;
+    mm_cor=mm_cor+60;
+    end
+    if hh_cor<0
+    hh_cor=hh_cor+24;
+    end
+
+    if numel(num2str(hh_cor))==1
+        hh_corstr=['0' num2str(hh_cor)];
+    else
+        hh_corstr=num2str(hh_cor);
+    end
+    if numel(num2str(mm_cor))==1
+        mm_corstr=['0' num2str(mm_cor)];
+    else
+        mm_corstr=num2str(mm_cor);
+    end
+    if numel(num2str(ss_cor))==1
+        ss_corstr=['0' num2str(ss_cor)];
+    else
+        ss_corstr=num2str(ss_cor);
+    end
+
+    tim_cor=[hh_corstr '-' mm_corstr '-' ss_corstr];
+    inputdir_file=[file_path, im_name];
+    outputdir_file=[save_dir 'image' num2str(im_number) ' ' date_p ' ' tim_cor im_format];
+    copyfile(inputdir_file, outputdir_file);
+    waitbar(j/length(FileList),h);
+end
+
+end
