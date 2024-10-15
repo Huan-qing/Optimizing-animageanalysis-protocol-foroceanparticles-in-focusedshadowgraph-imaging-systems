@@ -1,6 +1,6 @@
 %% for whole cast
-file_path =  'F:\OFPApr2021 Images all casts\camera images\cast-1\';
-save_path = 'F:\OFPApr2021 Images all casts\sch img\cast-1\';
+file_path =  '/home/hhuan006/2021fall/camera image/OFPOCT2021-cast-1/cast-1/';
+save_path = '/home/hhuan006/sch_pick/';
 if ~exist(save_path)
     mkdir(save_path)
 end
@@ -18,13 +18,13 @@ blankImage=zeros(size(I));
 % imshow(I2_gray)
 img_num=100;
 n=0;
-for i=len-99:len  % change 5 to 100 later
+for i=round(len/2)-99:round(len/2)  % change 5 to 100 later
 image_name = FileList(i).name;
 blank=im2double((imread(strcat(file_path,image_name))));
 % First do a check for matching rows, columns, and number of color channels.  Then:
 blankImage = blankImage +  blank/img_num;
 end
-for j = 1: length(FileList)
+for j = 7529:7600%1: length(FileList)
 %     tic
 image_name = FileList(j).name;
 I_sch=im2double((imread(strcat(file_path,image_name))));
@@ -32,9 +32,10 @@ I_sch=im2double((imread(strcat(file_path,image_name))));
 sub = imsubtract(I_sch,blankImage);
 % if the target pixel is brighter than our (schlieren is due to light distortion, some regions has more light from refraction)
 % mask=sub>0.01;
-mask=rem_simcan(sub,0.01);
+mask=rem_simcan(sub,0.001);
 % remove objects with area<30
 large=bwareaopen(mask, 30);
+% large=mask;
 label=bwlabel(large);
 major = regionprops(large, 'MajorAxisLength');
 for i =1 :length(major)
@@ -57,16 +58,16 @@ for i = 1: max(label(:))
     end
 end
 label_sch=bwlabel(sch);
-if max(label_sch(:))>=5 || max(area)>40000
+if max(label_sch(:))>=3 || max(area)>40000
     copyfile(strcat(file_path,image_name),save_path);
     n=n+1
 end
-% figure
-% imshow(I_sch)
-% % figure
-% % imshow(mask)
-% figure
-% imshow(large)
+figure
+imshow(I_sch)
+figure
+imshow(mask)
+figure
+imshow(large)
 % figure
 % imshow(logical(sch))
 % toc
