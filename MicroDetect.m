@@ -1,4 +1,4 @@
-function [fill_edge]=rem_simcan(diff,thre)
+function [fill_edge]=MicroDetec(diff,thre)
 
 % use < when the background white and object black.
 % use > when the object is white and background white
