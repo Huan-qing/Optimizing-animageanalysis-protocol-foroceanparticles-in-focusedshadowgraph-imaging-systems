@@ -1,9 +1,11 @@
-function [BW,edge_final]=Canny_v0(I1)%,T_Low,T_High)
+function [BW,edge_final]=Canny_detection(I1)%,T_Low,T_High)
+% Copyright (c) 2014, Rachmawan Atmaji Perdana
+% All rights reserved.
+% Editted by HH based on the original code provided by the above author.
+
 %Input image
-% I1=rgb2gray(imread('image4909 19-04-29 17-36-04 cast5.bmp'));
-%Show input image
-%figure
-%imshow(I1);
+% if the input image is an RGB image (a variable with three channels), it
+% is converted to the gray image with the following code
 if size(I1,3)==3
     I1=rgb2gray(I1);
 end
@@ -15,13 +17,14 @@ T_Low = 0.01;
 T_High = 0.02;
 % T_Low = 0.001;
 % T_High = 0.003;
-%Gaussian Filter Coefficient
+%Gaussian Filter Coefficient sigma ~= 1.42
 B = [2, 4, 5, 4, 2; 4, 9, 12, 9, 4;5, 12, 15, 12, 5;4, 9, 12, 9, 4;2, 4, 5, 4, 2 ];
 B = 1/159.* B;
 
 %Convolution of image by Gaussian Coefficient
 A=conv2(I1, B, 'same');
-
+% gaus = imcrop(A,[728,723,10,10]);
+% figure;imshow(gaus)
 %Filter for horizontal and vertical direction, sobel edge detection
 KGx = [-1, 0, 1; -2, 0, 2; -1, 0, 1];
 KGy = [1, 2, 1; 0, 0, 0; -1, -2, -1];
@@ -63,10 +66,6 @@ for i = 1  : pan
     end;
 end;
 
-% figure, imagesc(arah2); colorbar;
-%filename=['D:\DQ\DQ\MS\research\optical experiment\Normalization\edge\colorbar.jpg']
-%saveas(%figure(2),%filename)
-
 %Calculate magnitude
 magnitude = (Filtered_X.^2) + (Filtered_Y.^2);
 magnitude2 = sqrt(magnitude);
@@ -89,9 +88,6 @@ for i=2:pan-1
 end;
 
 BW = BW.*magnitude2;
-% figure, imshow(BW);
-%filename=['D:\DQ\DQ\MS\research\optical experiment\Normalization\edge\magnitude.jpg']
-%saveas(%figure(3),%filename)
 
 %Hysteresis Thresholding
 T_Low = T_Low * max(max(BW));
@@ -113,8 +109,5 @@ for i = 2  : pan-1
 end;
 
 edge_final = uint8(T_res.*255);
-%Show final edge detection result
-% figure, imshow(edge_final);
-%filename=['D:\DQ\DQ\MS\research\optical experiment\Normalization\edge\final edge.jpg']
-%saveas(%figure(4),%filename)
+
 end
