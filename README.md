@@ -18,4 +18,4 @@ MATLAB code for FoSI
 
 6. Match the image data with CTD (diff2pchip.m)
 
-7. Estimate data to the depth level (diff2pchip.m)
+7. interpolate the vertical particle profile data with depth (diff2pchip.m)
